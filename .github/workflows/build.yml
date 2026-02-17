@@ -50,7 +50,15 @@ jobs:
     - name: Build Firmware
       run: |
         cd openwrt
-        make -j1 V=s
+        make -j1 V=s 2>&1 | tee build.log
+
+
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log
+        path: openwrt/build.log
+     
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
