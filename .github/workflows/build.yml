@@ -28,6 +28,13 @@ jobs:
         cd openwrt
         git checkout openwrt-23.05
 
+    - name: Remove telephony feed to avoid build errors
+      run: |
+        cd openwrt
+        # 注释或删除 telephony feed
+        sed -i '/telephony/d' feeds.conf.default
+        rm -rf feeds/telephony
+
     - name: Update Feeds
       run: |
         cd openwrt
