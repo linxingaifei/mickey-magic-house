@@ -47,7 +47,7 @@ jobs:
     # 5. 复制你的精简 .config
     - name: Copy .config
       run: |
-        cp configs/x86_64_isp_config openwrt/.config
+        cp config/mickey.config openwrt/.config
 
     # 6. 更新 feeds
     - name: Update & Install Feeds
