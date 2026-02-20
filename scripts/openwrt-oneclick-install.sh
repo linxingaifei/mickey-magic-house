@@ -7,9 +7,9 @@ set -eu
 PROJECT_NAME="MickeyMagicHouse"
 
 # 先安装依赖，再安装功能包
-DEPENDENCY_PKGS="ca-bundle libustream-mbedtls uclient-fetch wget-ssl curl bash coreutils-timeout ip-full iptables-nft nftables kmod-tun"
+DEPENDENCY_PKGS="ca-bundle libustream-mbedtls uclient-fetch wget-ssl curl jq bash coreutils-timeout ip-full iptables-nft nftables kmod-tun"
 FEATURE_PKGS="ppp ppp-mod-pppoe odhcp6c mwan3 pbr luci-app-pbr sing-box docker dockerd containerd kmod-veth kmod-bridge kmod-br-netfilter kmod-overlay kmod-cgroup2"
-CRITICAL_PKGS="ca-bundle curl wget-ssl nftables"
+CRITICAL_PKGS="ca-bundle curl wget-ssl jq nftables"
 
 log() {
   printf '%s %s\n' "[INFO]" "$*"

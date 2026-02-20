@@ -36,7 +36,7 @@ sh /tmp/openwrt-oneclick-install.sh
 
 1. 检查是否为 `root`、是否为 OpenWrt 环境。
 2. `opkg update` 刷新软件源。
-3. 先安装基础依赖（如 `ca-bundle`、`wget-ssl`、`curl`、`nftables`、`kmod-tun` 等）。
+3. 先安装基础依赖（如 `ca-bundle`、`wget-ssl`、`curl`、`jq`、`nftables`、`kmod-tun` 等）。
 4. 校验关键依赖是否安装成功，失败则终止。
 5. 再安装功能组件（`mwan3`、`pbr`、`sing-box`、`docker` 等）。
 6. 自动启用可用服务（`dockerd`、`pbr`、`mwan3`）。
@@ -50,10 +50,20 @@ sh /tmp/openwrt-oneclick-install.sh
 - 软件源是否可访问
 - 固件版本是否支持目标包
 
-### Q2: 设备空间不足
+### Q2: 报错 `[ERROR] 缺少命令: jq`
+说明依赖没有装全。请先执行：
+
+```sh
+opkg update
+opkg install jq
+```
+
+然后重新执行一键脚本。
+
+### Q3: 设备空间不足
 先清理缓存或扩容，再重试安装。
 
-### Q3: 安装后 Web 页面没看到功能
+### Q4: 安装后 Web 页面没看到功能
 建议重启后再检查，并确认 LuCI 对应 app 包已安装。
 
 ## 4) 建议
