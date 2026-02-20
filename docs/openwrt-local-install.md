@@ -39,7 +39,7 @@ sh /tmp/openwrt-oneclick-install.sh
 3. 先安装基础依赖（如 `ca-bundle`、`wget-ssl`、`curl`、`jq`、`nftables`、`kmod-tun` 等）。
 4. 校验关键依赖是否安装成功，失败则终止。
 5. 再安装功能组件（`mwan3`、`pbr`、`sing-box`、`docker` 等）。
-6. 自动启用可用服务（`dockerd`、`pbr`、`mwan3`）。
+6. 自动启用可用服务（`dockerd` 必启；`pbr`、`mwan3` 在系统提供 init 服务时启用）。
 
 ## 3) 常见问题
 
@@ -63,7 +63,10 @@ opkg install jq
 ### Q3: 设备空间不足
 先清理缓存或扩容，再重试安装。
 
-### Q4: 安装后 Web 页面没看到功能
+### Q4: 日志里出现“可选服务不存在，跳过: pbr/mwan3”
+这是兼容行为：部分固件（如定制版 OpenWrt/iStoreOS）安装了包但不提供同名 init 脚本，脚本会跳过并继续，不影响基础安装完成。
+
+### Q5: 安装后 Web 页面没看到功能
 建议重启后再检查，并确认 LuCI 对应 app 包已安装。
 
 ## 4) 建议

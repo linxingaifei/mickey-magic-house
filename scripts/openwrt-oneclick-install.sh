@@ -99,12 +99,19 @@ check_critical_packages() {
 
 enable_service_if_exists() {
   svc="$1"
+  required="${2:-0}"
+
   if [ -x "/etc/init.d/$svc" ]; then
     /etc/init.d/"$svc" enable || true
     /etc/init.d/"$svc" start || true
     log "已启用服务: $svc"
+    return 0
+  fi
+
+  if [ "$required" = "1" ]; then
+    warn "关键服务不存在，跳过: $svc"
   else
-    warn "服务不存在，跳过: $svc"
+    log "可选服务不存在，跳过: $svc"
   fi
 }
 
@@ -129,7 +136,7 @@ main() {
   install_pkg_group "功能组件" "$FEATURE_PKGS"
 
   log "配置并启动关键服务..."
-  enable_service_if_exists dockerd
+  enable_service_if_exists dockerd 1
   enable_service_if_exists pbr
   enable_service_if_exists mwan3
 
