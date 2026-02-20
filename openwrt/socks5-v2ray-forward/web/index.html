@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mickey V2Ray 一对一转发</title>
+  <style>
+    :root {
+      --bg: #14051f;
+      --card: #231235;
+      --soft: #3f2758;
+      --text: #f9eefe;
+      --pink: #ff6bd6;
+      --purple: #9f6dff;
+    }
+    body { margin:0; font-family: "Segoe UI",sans-serif; background:radial-gradient(circle at top right,#4b2469,var(--bg)); color:var(--text); }
+    .wrap { max-width:1080px; margin:24px auto; padding:0 16px 32px; }
+    .hero { background:linear-gradient(135deg,rgba(255,107,214,.15),rgba(159,109,255,.16)); border:1px solid #6a3d93; border-radius:16px; padding:16px 20px; }
+    h1 { margin:0 0 8px; font-size:24px; }
+    .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-top:16px; }
+    .card { background:var(--card); border:1px solid #5f3d86; border-radius:14px; padding:14px; }
+    input, select { width:100%; box-sizing:border-box; margin:4px 0 10px; background:#1a1029; border:1px solid var(--soft); color:var(--text); border-radius:10px; padding:8px; }
+    button { border:0; border-radius:10px; padding:8px 12px; color:white; cursor:pointer; background:linear-gradient(90deg,var(--pink),var(--purple)); }
+    button.sub { background:#3b2951; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th,td { border-bottom:1px solid #4a2f67; padding:8px 4px; text-align:left; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; }
+    .tip { font-size:12px; opacity:.8; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>💜 Mickey V2Ray 一键面板</h1>
+    <div>OpenWrt / SOCKS5 / 内网地址一对一转发</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>节点管理（导入 / 删除 / 更新 / 选择）</h3>
+      <input id="node_id" placeholder="节点ID，如 hk-01">
+      <input id="node_host" placeholder="SOCKS5 地址">
+      <input id="node_port" placeholder="端口，例如 1080">
+      <input id="node_user" placeholder="用户名（可空）">
+      <input id="node_pass" placeholder="密码（可空）">
+      <div class="row">
+        <button onclick="importNode()">一键导入/更新</button>
+        <button class="sub" onclick="deleteNode()">删除节点</button>
+      </div>
+      <select id="node_select"></select>
+      <button onclick="selectNode()">选择节点</button>
+    </div>
+
+    <div class="card">
+      <h3>一对一内网转发</h3>
+      <input id="rule_id" placeholder="规则ID，如 cam-01">
+      <input id="rule_lan" placeholder="监听内网IP，例如 192.168.1.1">
+      <input id="rule_listen_port" placeholder="监听端口">
+      <input id="rule_target_host" placeholder="目标主机">
+      <input id="rule_target_port" placeholder="目标端口">
+      <div class="row">
+        <button onclick="saveRule()">保存/更新映射</button>
+        <button class="sub" onclick="deleteRule()">删除映射</button>
+      </div>
+      <p class="tip">每条规则都可固定出口节点，实现内网地址一对一代理转发。</p>
+    </div>
+
+    <div class="card">
+      <h3>虎额节电（模式）</h3>
+      <select id="mode_select">
+        <option value="balanced">平衡</option>
+        <option value="performance">性能优先</option>
+        <option value="eco">节电优先</option>
+      </select>
+      <button onclick="setMode()">一键切换模式</button>
+      <p class="tip">模式信息会记录在控制面板，可被计划任务读取做功耗策略。</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>当前配置预览</h3>
+    <pre id="preview" style="white-space:pre-wrap; background:#170d25; border-radius:10px; padding:10px;"></pre>
+  </div>
+</div>
+
+<script>
+const API='/cgi-bin/mickey-v2ray-api';
+const j=(u,m='GET',b)=>fetch(API+u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
+
+async function refresh(){
+  const data=await j('/state');
+  const sel=document.getElementById('node_select');
+  sel.innerHTML='';
+  data.nodes.forEach(n=>{const o=document.createElement('option');o.value=n.id;o.textContent=`${n.id} (${n.host}:${n.port})`; if(data.state.selectedNode===n.id)o.selected=true; sel.appendChild(o);});
+  document.getElementById('mode_select').value=data.state.mode||'balanced';
+  document.getElementById('preview').textContent=JSON.stringify(data,null,2);
+}
+async function importNode(){await j('/node/import','POST',{id:v('node_id'),host:v('node_host'),port:Number(v('node_port')),username:v('node_user'),password:v('node_pass')});refresh();}
+async function deleteNode(){await j('/node/delete','POST',{id:v('node_id')});refresh();}
+async function selectNode(){await j('/node/select','POST',{id:document.getElementById('node_select').value});refresh();}
+async function saveRule(){await j('/rule/upsert','POST',{id:v('rule_id'),lan_ip:v('rule_lan'),listen_port:Number(v('rule_listen_port')),target_host:v('rule_target_host'),target_port:Number(v('rule_target_port'))});refresh();}
+async function deleteRule(){await j('/rule/delete','POST',{id:v('rule_id')});refresh();}
+async function setMode(){await j('/mode/set','POST',{mode:document.getElementById('mode_select').value});refresh();}
+function v(id){return document.getElementById(id).value.trim();}
+refresh();
+</script>
+</body>
+</html>
