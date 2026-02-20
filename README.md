@@ -105,6 +105,10 @@ bin/targets/x86/64/
 
 ## 📂 项目结构
 
+## 📘 快速上手文档
+
+- [GitHub 用户 10 分钟上手指南](docs/github-user-quickstart.md)
+
 ```
 mickey-magic-house/
 ├── build/
