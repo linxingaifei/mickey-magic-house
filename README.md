@@ -79,6 +79,11 @@ PPPoE Client
 
 ---
 
+
+## 🧰 快速工具
+
+- `openwrt/socks5-v2ray-forward/install.sh`：在 OpenWrt 上一键安装 SOCKS5 + V2Ray 内网一对一转发面板（粉紫色 Web UI，支持节点导入/删除/更新/选择与节电模式）。
+
 ## 🛠 编译方法
 
 进入 build 目录：
