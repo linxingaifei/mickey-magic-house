@@ -31,6 +31,8 @@ chmod +x install.sh
 ./install.sh
 ```
 
+> 说明：无需预装 `jq`，脚本会自动通过 `opkg` 安装依赖（包括 `jq` 与 `xray-core`）。
+
 ## 可选：软件与数据/Web 分离部署
 
 可以，支持分离。你可以把：

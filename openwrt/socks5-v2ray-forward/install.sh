@@ -382,8 +382,8 @@ enable_services() {
 
 main() {
     require_cmd opkg
-    require_cmd jq || true
     install_packages
+    require_cmd jq
     prepare_dirs
     write_xray_helper
     write_service
