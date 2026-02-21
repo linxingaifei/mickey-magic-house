@@ -1,0 +1,123 @@
+#!/bin/bash
+
+PROJECT_DIR="/root/pppoe_web"
+
+echo "🚀 创建项目目录..."
+
+mkdir -p $PROJECT_DIR/web_backend
+mkdir -p $PROJECT_DIR/web_frontend
+mkdir -p $PROJECT_DIR/logs
+mkdir -p $PROJECT_DIR/backups
+
+echo "📦 创建 Flask 后端 app.py..."
+
+cat > $PROJECT_DIR/web_backend/app.py << 'EOF'
+from flask import Flask, jsonify
+import sqlite3
+import os
+
+app = Flask(__name__)
+DB_PATH = "pppoe.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        group_name TEXT,
+        rate_limit TEXT,
+        note TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+@app.route("/")
+def index():
+    return jsonify({"status": "OpenWrt ISP Web Backend Running"})
+
+@app.route("/users")
+def list_users():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT * FROM users")
+    rows = c.fetchall()
+    conn.close()
+    return jsonify(rows)
+
+if __name__ == "__main__":
+    init_db()
+    app.run(host="0.0.0.0", port=5000)
+EOF
+
+echo "🐳 创建 Dockerfile..."
+
+cat > $PROJECT_DIR/web_backend/Dockerfile << 'EOF'
+FROM python:3.10-alpine
+
+WORKDIR /app
+COPY app.py /app
+
+RUN pip install flask
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+EOF
+
+echo "📄 创建 docker-compose.yml..."
+
+cat > $PROJECT_DIR/docker-compose.yml << 'EOF'
+version: "3"
+services:
+  pppoe_web:
+    build: ./web_backend
+    container_name: pppoe_web
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./web_backend:/app
+      - /etc/ppp/chap-secrets:/chap-secrets
+    restart: always
+EOF
+
+echo "💾 创建数据库备份脚本..."
+
+cat > $PROJECT_DIR/backup_db.sh << 'EOF'
+#!/bin/bash
+cp /root/pppoe_web/web_backend/pppoe.db \
+/root/pppoe_web/backups/pppoe_$(date +%F_%T).db
+EOF
+
+chmod +x $PROJECT_DIR/backup_db.sh
+
+echo "🚀 创建一键部署脚本..."
+
+cat > $PROJECT_DIR/deploy_pppoe_web.sh << 'EOF'
+#!/bin/bash
+cd /root/pppoe_web
+docker-compose down
+docker-compose build
+docker-compose up -d
+echo "✅ 部署完成"
+EOF
+
+chmod +x $PROJECT_DIR/deploy_pppoe_web.sh
+
+echo "📘 创建 README.md..."
+
+cat > $PROJECT_DIR/README.md << 'EOF'
+# OpenWrt x86 ISP PPPoE Web System
+
+## 启动
+bash deploy_pppoe_web.sh
+
+访问：
+http://OpenWrt-IP:5000
+EOF
+
+echo "🎉 项目生成完成！"
+echo "目录：$PROJECT_DIR"
