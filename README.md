@@ -83,6 +83,7 @@ PPPoE Client
 ## 🧰 快速工具
 
 - `openwrt/socks5-v2ray-forward/install.sh`：在 OpenWrt 上一键安装 SOCKS5 + V2Ray 内网一对一转发面板（粉紫色 Web UI，支持节点导入/删除/更新/选择与节电模式）。
+- `alpine-base-template/`：Alpine 底层新仓库模板（含 Dockerfile、entrypoint 与 GitHub Actions build 检查）。
 
 ## 🛠 编译方法
 
@@ -108,6 +109,7 @@ bin/targets/x86/64/
 ## 📘 快速上手文档
 
 - [GitHub 用户 10 分钟上手指南](docs/github-user-quickstart.md)
+- [PBR + sing-box 双层分流一对一实践](docs/pbr-sing-box-double-routing.md)
 
 ```
 mickey-magic-house/

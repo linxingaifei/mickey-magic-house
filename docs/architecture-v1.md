@@ -8,7 +8,10 @@
 ## 二、核心架构
 
 PPPoE 接入 → PBR 第一层分流 → 多出口  
-sing-box 执行第二层源IP绑定分流
+sing-box 执行第二层源IP绑定分流（节点一对一）
+
+详细落地说明见：
+- [PBR + sing-box 双层分流一对一实践](./pbr-sing-box-double-routing.md)
 
 ## 三、出口支持
 
